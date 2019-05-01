@@ -1,0 +1,47 @@
+{
+  "name": "streambox",
+  "version": "0.0.0",
+  "description": "Streambox nodecg features",
+  "homepage": "",
+  "author": {
+    "name": "Blixa Morgan",
+    "email": "blixa@projectmakeit.com",
+    "url": ""
+  },
+  "files": [
+    "dashboard",
+    "graphics",
+    "extension.js",
+    "extension"
+  ],
+  "keywords": [
+    "",
+    "nodecg-bundle"
+  ],
+  "nodecg": {
+    "compatibleRange": "^1.1.1",
+    "dashboardPanels": [
+      {
+        "name": "streambox",
+        "title": "Streambox",
+        "width": 3,
+        "file": "streambox.html",
+        "headerColor": "#525F78"
+      }
+    ],
+    "graphics": [
+      {
+        "file": "index.html",
+        "width": 1280,
+        "height": 720,
+        "singleInstance": true
+      }
+    ]
+  },
+  "repository": "https://github.com/nodecg/nodecg.git",
+  "license": "MIT",
+  "dependencies": {
+    "obs-websocket-js": "^3.0.0",
+    "serialport": "^7.1.5"
+  }
+}
