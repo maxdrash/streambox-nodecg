@@ -42,6 +42,8 @@
   "license": "MIT",
   "dependencies": {
     "obs-websocket-js": "^3.0.0",
+    "@serialport/parser-readline": "^2.0.2",
+    "nodecg-utility-obs": "^6.0.0",
     "serialport": "^7.1.5"
   }
 }
