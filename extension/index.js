@@ -9,8 +9,14 @@ let app = express()
 module.exports = function (nodecg) {
   const obs = new OBSUtility(nodecg)
   //const users = new Users.Users(nodecg)
-  const serial = Serial('/dev/ttyACM0');
-  serial.write('\n\n\n')
+  const serial = Serial('/dev/ttyACM0',{autoOpen:false});
+  serial.on('open',()=>{
+    serial.write('\n\n\n')
+    serial.write("!LO\n")
+    serial.write("!B00\n")
+    serial.write("!B10\n")
+    serial.write("!B20\n")
+  })
   const parser = serial.pipe(new Readline())
   let countdown = false
   let end = false
@@ -28,6 +34,8 @@ module.exports = function (nodecg) {
     res.send(200)
   })
   app.get('/oauth/callback/twitch',(req,res) =>{
+  })
+  app.get('/login/twitch',(req,res) =>{
   })
 
   function processSerial(line){
@@ -158,12 +166,16 @@ module.exports = function (nodecg) {
   }
 
   parser.on('data',processSerial)
-  serial.write("!LO\n")
-  serial.write("!B00\n")
-  serial.write("!B10\n")
-  serial.write("!B20\n")
   nodecg.sendMessage('obs:disconnect')
 	nodecg.log.info('Ready');
+  function attemptSerialOpen(){
+    serial.open((err)=>{
+      if(err){
+        setTimeout(attemptSerialOpen,5000)
+      }
+    })
+  }
+  attemptSerialOpen()
   
 }
 
