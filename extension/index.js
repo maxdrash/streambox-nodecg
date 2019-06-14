@@ -2,9 +2,7 @@
 const Serial = require('serialport')
 const Readline = require('@serialport/parser-readline')
 const {OBSUtility} = require('nodecg-utility-obs')
-const express = require('express')
-let app = express()
-//const Users = require('streambox-users')
+const request = require('request')
 
 module.exports = function (nodecg) {
   const obs = new OBSUtility(nodecg)
@@ -20,23 +18,6 @@ module.exports = function (nodecg) {
   const parser = serial.pipe(new Readline())
   let countdown = false
   let end = false
-  /*const oauth = new google.auth.OAuth2(
-    nodecg.bundleConfig.youtube.client_id,
-    nodecg.bundleConfig.youtube.client_secret,
-    nodecg.bundleConfig.hostname+'/oauth/callback/youtube'
-  )*/
-
-  app.get('/oauth/callback/youtube',(req,res) =>{
-    let host = Users.HostYoutube(req.query.code)
-    let user = new Users.User()
-    user.setHost(host)
-    users.addUser(user)
-    res.send(200)
-  })
-  app.get('/oauth/callback/twitch',(req,res) =>{
-  })
-  app.get('/login/twitch',(req,res) =>{
-  })
 
   function processSerial(line){
     nodecg.log.info('Got Serial Line: '+line);
@@ -116,6 +97,30 @@ module.exports = function (nodecg) {
   }
 
   function processLogin(code){
+    serial.write("!CC\n")
+    request.post({
+        url:'https://streambox-auth.projectmakeit.com/streambox/code',
+        json:{
+          code: code
+        }
+    })
+    .auth(null,null,true,'test')
+    .then((body)=>{
+      try{
+        let data = JSON.parse(body)
+        if(data.key){
+          obs.send('SetStreamSettings',{type:"rtmp_custom",settings:{server:data.server,key:data.key,use-auth:false,username:"",password:""},save:false})
+          serial.write("!SC\n!LI\n")
+          nodecg.sendMessage('obs:connect', {ip:'localhost',port:4444,password:''})
+        }else{
+          serial.write("!LO\n")
+        }
+      }catch(e){
+        serial.write("!LO\n")
+      }
+    }).catch((err)=>{
+      serial.write("!LO\n")
+    })
     /*
     if(users.changeUserByCode(code))
       serial.write("!UG\n")
@@ -123,11 +128,11 @@ module.exports = function (nodecg) {
       serial.write("\n!LI\n")
       obs.send('SetStreamSettings',{type:"rtmp_custom",settings:{server:users.currentUser.group.server}})
     }
-    */
     serial.write("!UG\n")
     serial.write("Test User\n")
     serial.write("\n!LI\n")
     nodecg.sendMessage('obs:connect', {ip:'localhost',port:4444,password:''})
+    */
   }
 
   function processLogout(){
